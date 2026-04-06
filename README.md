@@ -1,40 +1,42 @@
-# Regional Delivery Performance Ranking
+# Delivery Fleet Performance Dashboard
 
 ## Project Overview
 
-This project simulates a real-world logistics scenario where delivery routes are evaluated based on operational performance metrics.
+This project simulates a real-world logistics scenario where a delivery fleet is evaluated based on operational performance metrics.
 
-The goal is to analyze efficiency, punctuality, and cost in order to:
+The objective is to analyze and optimize delivery performance by measuring:
 
-* Identify underperforming routes
-* Rank routes based on performance
-* Detect top-performing (elite) routes
-* Apply advanced Python techniques for data processing
+* Completion rate
+* Punctuality
+* Cost efficiency
+* Overall performance score
+
+The system processes daily operational data and generates a structured performance dashboard to support decision-making.
 
 ---
 
 ## Skills Demonstrated
 
-This project focuses on mastering core Python concepts before advancing to more complex data structures:
+This project showcases strong foundational Python skills applied to real business logic:
 
-* ✅ List comprehensions
-* ✅ `zip()` for multi-list iteration
-* ✅ `lambda` functions with multiple conditions
-* ✅ Advanced `sorted()` with multiple keys and tie-breaking
-* ✅ `enumerate()` for ranking and indexing
-* ✅ Real-world performance metrics modeling
+*  List comprehensions for efficient data processing
+*  `zip()` for multi-variable iteration
+*  `lambda` functions for dynamic selection (max/min)
+*  Data structuring using tuples
+*  Conditional filtering for business rules
+*  Modular function design
 
 ---
 
 ## Dataset
 
 ```python
-routes = ["North", "South", "East", "West", "Central", "Express"]
+vehicles = ["Van 1", "Van 2", "Van 3", "Van 4", "Van 5"]
 
-expected =  [200, 220, 210, 230, 250, 240]
-delivered = [190, 200, 220, 210, 240, 230]
-late =      [15, 25, 5, 30, 10, 12]
-cost =      [600, 750, 500, 800, 900, 650]
+expected_packages = [120, 150, 130, 160, 140]
+delivered_packages = [115, 140, 120, 150, 145]
+late_packages = [10, 20, 5, 25, 8]
+operational_cost = [300, 400, 350, 450, 380]
 ```
 
 ---
@@ -44,7 +46,7 @@ cost =      [600, 750, 500, 800, 900, 650]
 ```python
 target_completion = 95
 target_punctuality = 90
-max_cost_per_package = 4.0
+max_cost_per_package = 3.0
 ```
 
 ---
@@ -53,149 +55,164 @@ max_cost_per_package = 4.0
 
 ### Completion Rate
 
-Measures how many expected deliveries were completed:
+Measures delivery fulfillment:
 
-```
 (delivered / expected) * 100
-```
 
 ---
 
 ### Punctuality
 
-Measures on-time delivery performance:
+Measures on-time delivery:
 
-```
 ((delivered - late) / delivered) * 100
-```
 
 ---
 
 ### Cost per Package
 
-Operational efficiency indicator:
+Measures operational efficiency:
 
-```
 cost / delivered
-```
 
 ---
 
 ### Performance Score
 
-Weighted performance metric:
+A weighted performance metric combining all KPIs:
 
-```
 (completion * 0.5) + (punctuality * 0.3) + ((100 - cost_per_package * 10) * 0.2)
-```
+
+ Cost penalizes the score, simulating real-world operational pressure.
 
 ---
 
-## Critical Routes Detection
+## Data Structure
 
-Routes are flagged as critical if:
+Each vehicle is represented as a tuple:
+
+```python
+(vehicle, completion, punctuality, cost_per_package, score)
+```
+
+This structure allows efficient analysis using indexing and lambda functions.
+
+---
+
+##  Business Logic Implemented
+
+###  Underperforming Vehicles
+
+A vehicle is flagged if:
 
 * Completion < target
 * OR Punctuality < target
-* OR Cost exceeds limit
-* AND Overall score < 90
-
-This introduces **multi-condition filtering logic** using list comprehensions.
+* OR Cost exceeds threshold
 
 ---
 
-## Ranking System (Advanced Sorting)
+###  Best & Worst Vehicles
 
-Routes are ranked using multiple criteria:
-
-1. Highest performance score
-2. Lowest cost per package (tie-breaker)
-3. Highest completion rate (final tie-breaker)
-
-Example implementation:
+Using `lambda`:
 
 ```python
-sorted(records, key=lambda x: (-x[4], x[3], -x[1]))
+max(records, key=lambda x: x[4])
+min(records, key=lambda x: x[4])
 ```
 
 ---
 
-## Ranking with Position (enumerate)
-
-Routes are assigned ranking positions:
+###  Most Expensive Vehicle
 
 ```python
-[(1, "Central", score), (2, "North", score), ...]
-```
-
-Using:
-
-```python
-enumerate(sorted_data, start=1)
+max(records, key=lambda x: x[3])
 ```
 
 ---
 
-## Elite Routes Detection
+###  Ranking System
 
-A route is considered **elite** if:
+Vehicles are ranked by performance score:
+
+```python
+sorted(records, key=lambda x: x[4], reverse=True)
+```
+
+---
+
+###  High Efficiency Vehicles
+
+Vehicles that exceed expectations:
 
 * Completion ≥ 100
-* Punctuality ≥ 95
-* Cost per package < average
-
-This simulates real-world performance incentives.
+* Punctuality ≥ 90
 
 ---
 
-## Expected Outputs (Validation)
+##  Expected Output (Validated)
 
 ### Completion
 
 ```python
-[95.0, 90.91, 104.76, 91.3, 96.0, 95.83]
+[95.83, 93.33, 92.31, 93.75, 103.57]
 ```
 
 ### Punctuality
 
 ```python
-[92.11, 87.5, 97.73, 85.71, 95.83, 94.78]
+[91.30, 85.71, 95.83, 83.33, 94.48]
 ```
 
 ### Cost per Package
 
 ```python
-[3.16, 3.75, 2.27, 3.81, 3.75, 2.83]
+[2.61, 2.86, 2.92, 3.00, 2.62]
+```
+
+### Performance Score
+
+```python
+[90.09, 86.66, 89.06, 85.87, 94.89]
 ```
 
 ---
 
-## 🚀 Why This Project Matters
+##  Key Insights
 
-This project replicates real operational analytics used in:
+* **Best performing vehicle:** Van 5
+* **Worst performing vehicle:** Van 4
+* **Most expensive vehicle:** Van 4
+* **Underperforming vehicles:** Van 2, Van 3, Van 4
+* **Top efficiency vehicle:** Van 5
 
-* Logistics & supply chain management
-* Warehouse performance tracking
-* Delivery optimization systems
+---
+
+##  Why This Project Matters
+
+This project reflects real-world scenarios in:
+
+* Logistics operations
+* Fleet performance monitoring
+* Supply chain optimization
 
 It demonstrates the ability to:
 
-* Transform raw data into actionable insights
-* Apply structured logic to business problems
-* Write clean, scalable Python code
+* Transform raw operational data into insights
+* Apply structured business logic
+* Build scalable analytical functions
 
 ---
 
-## Next Step
+##  Next Step
 
-This project serves as a foundation before moving into:
+This project serves as a foundation for advancing into:
 
-➡️ Dictionaries
-➡️ Data aggregation by key
-➡️ Real dashboard-like structures
+ Dictionaries (structured data models)
+ Aggregation and grouping
+ Dashboard-style analytics
 
 ---
 
-## Author
-Raziel Rosas Martinez
-Developed as part of a structured progression from Python fundamentals to real-world problem solving.
+##  Author
+
+Developed as part of a structured learning path from Python fundamentals to real-world data analysis and operational problem solving.
