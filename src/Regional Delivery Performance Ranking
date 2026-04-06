@@ -1,0 +1,113 @@
+def validate_delivery_data(list1, list2):
+  if len(list1) != len(list2):
+    print("Lists must have the same length")
+    return False
+
+  for l1, l2 in zip(list1, list2):
+    if not isinstance(l1, (int, float)) or not isinstance(l2, (int, float)):
+      print("Data must be only numbers")
+      return False
+    if l1 < 0 or l2 < 0:
+      print("Numbers must be greater than or equal to 0")
+      return False
+  return True
+
+def get_completion_per_vehicle(expected_packages, delivered_packages):
+  completion_per_vehicle = [
+      round((deli / exp) * 100, 2) if exp != 0 else 0
+      for exp, deli in zip(expected_packages, delivered_packages) 
+  ]
+  return completion_per_vehicle
+
+def get_punctuality_per_vehicle(delivered_packages, late_packages):
+  punctuality_per_vehicle = [
+      round(((deli - late) / deli) * 100, 2) if deli != 0 else 0
+      for deli, late in zip(delivered_packages, late_packages)
+  ]
+  return punctuality_per_vehicle
+
+def get_cost_per_package(operational_cost, delivered_packages):
+  cost_per_package = [
+      round((cost / deli), 2) if deli != 0 else 0
+      for cost, deli in zip(operational_cost, delivered_packages)
+  ]
+  return cost_per_package
+
+def get_score_list(completion_per_vehicle, punctuality_per_vehicle, cost_per_package):
+  score_list = [
+      round((comp * 0.5) + (punct * 0.3) + ((100 - cost_per * 10) * 0.2), 2)
+      for comp, punct, cost_per in zip(completion_per_vehicle, punctuality_per_vehicle, cost_per_package)
+  ]
+  return score_list
+
+def get_records_structure(vehicles, completion_per_vehicle, punctuality_per_vehicle, cost_per_package, score_list):
+  records = [
+      (vehi, comp, punct, cost_per, score)
+      for vehi, comp, punct, cost_per, score in zip(vehicles, completion_per_vehicle, punctuality_per_vehicle, cost_per_package, score_list)
+  ]
+  return records
+
+def get_underperforming_vehicles(records, target_completion, target_punctuality, max_cost_per_package):
+  underperforming_vehicles = [
+      record[0]
+      for record in records
+      if record[1] < target_completion or record[2] < target_punctuality or record[3] > max_cost_per_package
+  ]
+  return underperforming_vehicles
+
+def get_best_and_worst_vehicle (records):
+  best = max(records, key = lambda x: x[4])
+  worst = min(records, key = lambda x: x[4])
+  return best[0], worst[0]
+
+def get_most_expensive_vehicle(records):
+  most_expensive = max(records, key = lambda x: x[3])    
+  return most_expensive[0]
+
+def get_sorted_ranking(records):
+  sorted_ranking = [
+      record[0]
+      for record in sorted(records, key = lambda x: x[4], reverse = True)
+  ] 
+  return sorted_ranking
+
+def get_high_efficiency_vehicles(records):
+  high_efficiency_vehicles = [
+      record[0]
+      for record in records
+      if record[1] >= 100 and record[2] >= 90
+  ]
+  return high_efficiency_vehicles
+
+vehicles = ["Van 1", "Van 2", "Van 3", "Van 4", "Van 5"]
+
+expected_packages = [120, 150, 130, 160, 140]
+delivered_packages = [115, 140, 120, 150, 145]
+late_packages = [10, 20, 5, 25, 8]
+operational_cost = [300, 400, 350, 450, 380]
+
+target_completion = 95
+target_punctuality = 90
+max_cost_per_package = 3.0
+
+if validate_delivery_data(expected_packages, delivered_packages) and validate_delivery_data(delivered_packages, late_packages) and validate_delivery_data(operational_cost, delivered_packages):
+  completion_per_vehicle = get_completion_per_vehicle(expected_packages, delivered_packages)
+  punctuality_per_vehicle = get_punctuality_per_vehicle(delivered_packages, late_packages)
+  cost_per_package = get_cost_per_package(operational_cost, delivered_packages)
+  score_list = get_score_list(completion_per_vehicle, punctuality_per_vehicle, cost_per_package)
+  records = get_records_structure(vehicles, completion_per_vehicle, punctuality_per_vehicle, cost_per_package, score_list)
+  best, worst = get_best_and_worst_vehicle (records)
+
+  print("===== Dashboard weekly results =====\n")
+  print("Completion per vehicle:", completion_per_vehicle)
+  print("Punctuality per vehicle:", punctuality_per_vehicle)
+  print("Cost per package:", cost_per_package)
+  print("Performance Score:\n", score_list, "\n")
+  print("Records structure:\n", records, "\n")
+  print("Underperforming vehicles:", get_underperforming_vehicles(records, target_completion, target_punctuality, max_cost_per_package))
+  print("Best vehicle:",best)
+  print("Worst vehicle:", worst)
+  print("Most expensive vehicle:", get_most_expensive_vehicle(records), "\n")
+  print("Sorted ranking (HIGH → LOW score):", get_sorted_ranking(records))
+  print("High efficiency vehicles:", get_high_efficiency_vehicles(records))
+  
